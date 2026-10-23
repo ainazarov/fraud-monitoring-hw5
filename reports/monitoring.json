@@ -1,0 +1,657 @@
+{
+  "activation_annotation": [
+    {
+      "metric": {
+        "instance": "fraud_detector:8000",
+        "job": "fraud-detector",
+        "version": "202405-d3989bb8b5dc"
+      },
+      "value": [
+        1792782038.683,
+        "1792782010492.2307"
+      ]
+    },
+    {
+      "metric": {
+        "instance": "fraud_detector:8000",
+        "job": "fraud-detector",
+        "version": "202406-2f59995e3f61"
+      },
+      "value": [
+        1792782038.683,
+        "1792782037725.8406"
+      ]
+    }
+  ],
+  "alert_rules": [
+    {
+      "title": "HW5 - High fraud ratio",
+      "uid": "hw5-high-fraud-ratio"
+    },
+    {
+      "title": "HW5 - Scoring stream stalled",
+      "uid": "hw5-stream-stalled"
+    }
+  ],
+  "alert_states": {
+    "HW5 - High fraud ratio": "inactive",
+    "HW5 - Scoring stream stalled": "inactive"
+  },
+  "business": {
+    "database_role": [
+      {
+        "can_insert": false,
+        "readonly": "on",
+        "username": "grafana_reader"
+      }
+    ],
+    "filters": [
+      {
+        "categories": [
+          {
+            "category": "grocery_pos",
+            "flagged": 36,
+            "transactions": 310
+          },
+          {
+            "category": "shopping_net",
+            "flagged": 37,
+            "transactions": 324
+          },
+          {
+            "category": "travel",
+            "flagged": 40,
+            "transactions": 366
+          }
+        ],
+        "category_window_rows": 1000,
+        "density_area": 1.0,
+        "merchant": "__all",
+        "state": "__all",
+        "tps_integrated_count": 7230.0,
+        "transactions": 7230
+      },
+      {
+        "categories": [
+          {
+            "category": "grocery_pos",
+            "flagged": 11,
+            "transactions": 112
+          },
+          {
+            "category": "shopping_net",
+            "flagged": 7,
+            "transactions": 106
+          },
+          {
+            "category": "travel",
+            "flagged": 15,
+            "transactions": 131
+          }
+        ],
+        "category_window_rows": 349,
+        "density_area": 1.0,
+        "merchant": "__all",
+        "state": "TX",
+        "tps_integrated_count": 2495.0,
+        "transactions": 2495
+      },
+      {
+        "categories": [
+          {
+            "category": "grocery_pos",
+            "flagged": 11,
+            "transactions": 110
+          },
+          {
+            "category": "shopping_net",
+            "flagged": 14,
+            "transactions": 112
+          },
+          {
+            "category": "travel",
+            "flagged": 25,
+            "transactions": 134
+          }
+        ],
+        "category_window_rows": 356,
+        "density_area": 0.9999999999999998,
+        "merchant": "demo_travel",
+        "state": "__all",
+        "tps_integrated_count": 2418.0,
+        "transactions": 2418
+      },
+      {
+        "categories": [
+          {
+            "category": "grocery_pos",
+            "flagged": 5,
+            "transactions": 43
+          },
+          {
+            "category": "shopping_net",
+            "flagged": 2,
+            "transactions": 44
+          },
+          {
+            "category": "travel",
+            "flagged": 11,
+            "transactions": 49
+          }
+        ],
+        "category_window_rows": 136,
+        "density_area": 1.0,
+        "merchant": "demo_travel",
+        "state": "TX",
+        "tps_integrated_count": 877.0,
+        "transactions": 877
+      }
+    ],
+    "from_ms": 1792781139000,
+    "quoted_merchant_has_live_rows": false,
+    "quoted_merchant_roundtrip": "O'Brien's verification store",
+    "snapshot_sequence": 7231,
+    "snapshot_transactions": 7231,
+    "to_ms": 1792782039000,
+    "variable_options": [
+      {
+        "options": 4,
+        "quoted_values": 0,
+        "variable": "us_state"
+      },
+      {
+        "options": 4,
+        "quoted_values": 0,
+        "variable": "merch"
+      }
+    ]
+  },
+  "dashboard_queries": [
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Scoring throughput \u00b7 30s",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Processing p95 \u00b7 30s",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Flagged fraction \u00b7 30s",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Since last score",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Decision flow",
+      "ref": "A",
+      "rows": 170
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Decision flow",
+      "ref": "B",
+      "rows": 170
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Handler latency",
+      "ref": "A",
+      "rows": 170
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Handler latency",
+      "ref": "B",
+      "rows": 170
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Handler latency",
+      "ref": "C",
+      "rows": 170
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Score distribution over time",
+      "ref": "A",
+      "rows": 2380
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Flagged decisions in selected range",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Rejected inputs in selected range",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Model activation history",
+      "ref": "A",
+      "rows": 2
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Durable score counts by model",
+      "ref": "A",
+      "rows": 4
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Durable fraud rate by model",
+      "ref": "A",
+      "rows": 4
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Model reload health",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-scoring",
+      "panel": "Model reload failures \u00b7 rolling 1m",
+      "ref": "A",
+      "rows": 170
+    },
+    {
+      "dashboard": "hw5-writer",
+      "panel": "Committed throughput \u00b7 30s",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-writer",
+      "panel": "Write p95 \u00b7 30s",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-writer",
+      "panel": "Persisted flagged fraction \u00b7 30s",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-writer",
+      "panel": "Duplicate replays in selected range",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-writer",
+      "panel": "Scoring versus durable writes",
+      "ref": "A",
+      "rows": 170
+    },
+    {
+      "dashboard": "hw5-writer",
+      "panel": "Scoring versus durable writes",
+      "ref": "B",
+      "rows": 170
+    },
+    {
+      "dashboard": "hw5-writer",
+      "panel": "Database and delivery latency",
+      "ref": "A",
+      "rows": 170
+    },
+    {
+      "dashboard": "hw5-writer",
+      "panel": "Database and delivery latency",
+      "ref": "B",
+      "rows": 170
+    },
+    {
+      "dashboard": "hw5-writer",
+      "panel": "Persisted score distribution over time",
+      "ref": "A",
+      "rows": 2380
+    },
+    {
+      "dashboard": "hw5-writer",
+      "panel": "Committed flagged decisions in selected range",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-writer",
+      "panel": "Rejected results in selected range",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-writer",
+      "panel": "Exact stored totals in selected range",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-writer",
+      "panel": "Latest committed scores",
+      "ref": "A",
+      "rows": 100
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "CPU busy",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "RAM used",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "Busiest filesystem",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "Exporter availability",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "CPU busy over time",
+      "ref": "A",
+      "rows": 173
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "RAM used over time",
+      "ref": "A",
+      "rows": 172
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "Network receive / transmit",
+      "ref": "A",
+      "rows": 173
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "Network receive / transmit",
+      "ref": "B",
+      "rows": 173
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "Filesystem space used",
+      "ref": "A",
+      "rows": 1032
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "Disk read / write traffic",
+      "ref": "A",
+      "rows": 692
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "Disk read / write traffic",
+      "ref": "B",
+      "rows": 692
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "CPU load",
+      "ref": "A",
+      "rows": 172
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "CPU load",
+      "ref": "B",
+      "rows": 172
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "CPU load",
+      "ref": "C",
+      "rows": 172
+    },
+    {
+      "dashboard": "hw5-system",
+      "panel": "All scrape targets",
+      "ref": "A",
+      "rows": 4
+    },
+    {
+      "dashboard": "hw5-business",
+      "panel": "Selected transactions",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-business",
+      "panel": "Selected flagged fraction",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-business",
+      "panel": "Selected flagged amount",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-business",
+      "panel": "Selected mean score",
+      "ref": "A",
+      "rows": 1
+    },
+    {
+      "dashboard": "hw5-business",
+      "panel": "Filtered score probability density",
+      "ref": "A",
+      "rows": 20
+    },
+    {
+      "dashboard": "hw5-business",
+      "panel": "Filtered processing TPS",
+      "ref": "A",
+      "rows": 181
+    },
+    {
+      "dashboard": "hw5-business",
+      "panel": "Fraud fraction by category \u00b7 latest 1,000 overall",
+      "ref": "A",
+      "rows": 3
+    },
+    {
+      "dashboard": "hw5-business",
+      "panel": "Flagged amount by state",
+      "ref": "A",
+      "rows": 3
+    },
+    {
+      "dashboard": "hw5-business",
+      "panel": "Merchant exposure",
+      "ref": "A",
+      "rows": 3
+    },
+    {
+      "dashboard": "hw5-business",
+      "panel": "Category sample sizes \u00b7 latest 1,000 overall",
+      "ref": "A",
+      "rows": 3
+    },
+    {
+      "dashboard": "hw5-business",
+      "panel": "Explore recent selected transactions",
+      "ref": "A",
+      "rows": 100
+    }
+  ],
+  "finished_at": "2026-10-23T19:00:39.319352+00:00",
+  "live_counters": {
+    "fw_scores_written_total": {
+      "after": 193.0,
+      "before": 153.0
+    },
+    "fw_transactions_total": {
+      "after": 195.0,
+      "before": 155.0
+    }
+  },
+  "model_after": {
+    "artifact": "model-202406-2f59995e3f61.joblib",
+    "metrics": {
+      "pr_auc": 1.0,
+      "roc_auc": 1.0
+    },
+    "published_at": "2026-10-23T19:00:37.591586+00:00",
+    "run_id": "manual-20261023T190037-7a609186817a",
+    "schema_version": 1,
+    "sha256": "08f717c67ec310c859337e1ca03c3397a6062352abfbb6055d8fdc00678f708e",
+    "validation_month": "2024-06",
+    "version": "202406-2f59995e3f61",
+    "window_end": "2024-06",
+    "window_start": "2024-04"
+  },
+  "model_before": {
+    "artifact": "model-202405-d3989bb8b5dc.joblib",
+    "metrics": {
+      "pr_auc": 1.0,
+      "roc_auc": 1.0
+    },
+    "published_at": "2026-10-23T18:56:31.845311+00:00",
+    "run_id": "manual-20261023T185631-0ee4a2b4cffe",
+    "schema_version": 1,
+    "sha256": "f2f250d899abf39dea779d63d962596c8fac21b1de900d024556b2fab7e431a9",
+    "validation_month": "2024-05",
+    "version": "202405-d3989bb8b5dc",
+    "window_end": "2024-05",
+    "window_start": "2024-03"
+  },
+  "retraining": {
+    "active_manifest": {
+      "artifact": "model-202406-2f59995e3f61.joblib",
+      "metrics": {
+        "pr_auc": 1.0,
+        "roc_auc": 1.0
+      },
+      "published_at": "2026-10-23T19:00:37.591586+00:00",
+      "run_id": "manual-20261023T190037-7a609186817a",
+      "schema_version": 1,
+      "sha256": "08f717c67ec310c859337e1ca03c3397a6062352abfbb6055d8fdc00678f708e",
+      "validation_month": "2024-06",
+      "version": "202406-2f59995e3f61",
+      "window_end": "2024-06",
+      "window_start": "2024-04"
+    },
+    "decision": {
+      "candidate_metrics": {
+        "pr_auc": 1.0,
+        "roc_auc": 1.0
+      },
+      "decided_at": "2026-10-23T19:00:37.591527+00:00",
+      "incumbent_metrics": {
+        "pr_auc": 0.9999999999999999,
+        "roc_auc": 1.0
+      },
+      "manifest": {
+        "artifact": "model-202406-2f59995e3f61.joblib",
+        "metrics": {
+          "pr_auc": 1.0,
+          "roc_auc": 1.0
+        },
+        "published_at": "2026-10-23T19:00:37.591586+00:00",
+        "run_id": "manual-20261023T190037-7a609186817a",
+        "schema_version": 1,
+        "sha256": "08f717c67ec310c859337e1ca03c3397a6062352abfbb6055d8fdc00678f708e",
+        "validation_month": "2024-06",
+        "version": "202406-2f59995e3f61",
+        "window_end": "2024-06",
+        "window_start": "2024-04"
+      },
+      "published": true,
+      "reason": "Both validation metrics are no worse",
+      "run_dir": "/opt/project/storage/work/2f59995e3f61b4429d76",
+      "run_id": "manual-20261023T190037-7a609186817a",
+      "run_key": "2f59995e3f61b4429d76",
+      "status": "published",
+      "version": "202406-2f59995e3f61",
+      "window_end": "2024-06",
+      "window_start": "2024-04"
+    },
+    "run_id": "manual-20261023T190037-7a609186817a",
+    "supply": {
+      "month": "2024-06",
+      "retention_months": 36,
+      "rows_added": 3000,
+      "rows_pruned": 0,
+      "run_id": "supply-manual-20261023T190037-7a609186817a",
+      "status": "committed"
+    }
+  },
+  "started_at": "2026-10-23T19:00:33.048707+00:00",
+  "status": "passed",
+  "targets": [
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "node-exporter:9100",
+        "job": "node-exporter"
+      },
+      "value": [
+        1792782033.054,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "fraud_detector:8000",
+        "job": "fraud-detector"
+      },
+      "value": [
+        1792782033.054,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "scoring_writer:8001",
+        "job": "scoring-writer"
+      },
+      "value": [
+        1792782033.054,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "localhost:9090",
+        "job": "prometheus"
+      },
+      "value": [
+        1792782033.054,
+        "1"
+      ]
+    }
+  ]
+}

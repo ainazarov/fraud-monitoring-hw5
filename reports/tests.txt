@@ -1,0 +1,7 @@
+ Container fraud-monitoring-hw5-tests-run-d10497fb7bd0 Creating 
+ Container fraud-monitoring-hw5-tests-run-d10497fb7bd0 Created 
+
+........................................................................ [ 47%]
+........................................................................ [ 95%]
+.......                                                                  [100%]
+151 passed in 7.77s

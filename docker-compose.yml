@@ -1,0 +1,333 @@
+name: fraud-monitoring-hw5
+
+x-app: &app
+  image: fraud-monitoring-hw5:local
+  build: .
+  environment: &app-env
+    STORAGE_DIR: /opt/project/storage
+    PYTHONPATH: /opt/project
+    KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    PGHOST: postgres
+    PGPORT: '5432'
+    PGDATABASE: airflow
+    PGUSER: airflow
+    PGPASSWORD: ${POSTGRES_PASSWORD:-airflow_local}
+    MONTHLY_BATCH_SIZE: ${MONTHLY_BATCH_SIZE:-3000}
+    HISTORY_MONTHS: ${HISTORY_MONTHS:-36}
+    FRAUD_THRESHOLD: ${FRAUD_THRESHOLD:-0.5}
+    OPENBLAS_NUM_THREADS: '1'
+    OMP_NUM_THREADS: '1'
+  volumes:
+    - storage:/opt/project/storage
+
+x-airflow: &airflow
+  <<: *app
+  environment: &airflow-env
+    <<: *app-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN_CMD: python /opt/project/scripts/airflow_database_url.py
+    AIRFLOW__CORE__DAGS_FOLDER: /opt/project/dags
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'false'
+    AIRFLOW__CORE__PARALLELISM: '4'
+    AIRFLOW__CORE__MAX_ACTIVE_TASKS_PER_DAG: '2'
+    AIRFLOW__WEBSERVER__WORKERS: '2'
+    AIRFLOW__WEBSERVER__SECRET_KEY: local-homework-webserver-key
+    AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
+    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: '15'
+  volumes:
+    - storage:/opt/project/storage
+    - airflow_logs:/opt/airflow/logs
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-airflow_local}
+      POSTGRES_DB: airflow
+      GRAFANA_DB_PASSWORD: ${GRAFANA_DB_PASSWORD:-grafana_local}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/001-scores.sql:ro
+      - ./database/grafana-reader.sh:/docker-entrypoint-initdb.d/002-grafana-reader.sh:ro
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U airflow -d airflow']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: '2181'
+      ZOOKEEPER_TICK_TIME: '2000'
+      JAVA_TOOL_OPTIONS: '-XX:-UseContainerSupport -XX:ActiveProcessorCount=2'
+      KAFKA_HEAP_OPTS: '-Xms128m -Xmx256m'
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
+    healthcheck:
+      test: [CMD, cub, zk-ready, 'localhost:2181', '5']
+      interval: 5s
+      timeout: 10s
+      retries: 30
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_ID: '1'
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: '1'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_LOG_RETENTION_HOURS: '24'
+      JAVA_TOOL_OPTIONS: '-XX:-UseContainerSupport -XX:ActiveProcessorCount=2'
+      KAFKA_HEAP_OPTS: '-Xms256m -Xmx512m'
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: [CMD, kafka-topics, --bootstrap-server, kafka:9092, --list]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+    restart: unless-stopped
+
+  kafka-setup:
+    image: confluentinc/cp-kafka:7.3.0
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      JAVA_TOOL_OPTIONS: '-XX:-UseContainerSupport -XX:ActiveProcessorCount=2'
+    entrypoint: [/bin/bash, -ec]
+    command:
+      - |
+        for topic in transactions scores dead_letters; do
+          kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic "$$topic" --partitions 1 --replication-factor 1
+        done
+
+  seed:
+    <<: *app
+    environment:
+      <<: *app-env
+      TRAINING_CSV: ${TRAINING_CSV:-}
+    volumes:
+      - storage:/opt/project/storage
+      - ${DATA_DIR:-./data}:/data:ro
+    entrypoint: [/bin/bash, -ec]
+    command: ['python scripts/seed_data.py $${TRAINING_CSV:+--csv "$$TRAINING_CSV"}; python scripts/bootstrap.py']
+
+  airflow-init:
+    profiles: [airflow]
+    <<: *airflow
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      <<: *airflow-env
+      AIRFLOW_ADMIN_USER: ${AIRFLOW_ADMIN_USER:-admin}
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:-admin}
+    entrypoint: [/bin/bash, -ec]
+    command:
+      - |
+        airflow db migrate
+        python scripts/create_admin.py
+
+  airflow-webserver:
+    profiles: [airflow]
+    <<: *airflow
+    command: webserver
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+      seed:
+        condition: service_completed_successfully
+    ports:
+      - '127.0.0.1:${AIRFLOW_PORT:-8085}:8080'
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=4)"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  airflow-scheduler:
+    profiles: [airflow]
+    <<: *airflow
+    command: scheduler
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+      seed:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8974/health', timeout=4)"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  fraud_detector:
+    <<: *app
+    command: python -m fraud_detector.app
+    volumes:
+      - storage:/opt/project/storage:ro
+    depends_on:
+      kafka-setup:
+        condition: service_completed_successfully
+      seed:
+        condition: service_completed_successfully
+    healthcheck: &worker-health
+      test: [CMD, python, -c, "import pathlib,time; assert time.time()-pathlib.Path('/tmp/healthy').stat().st_mtime < 90"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  scoring_writer:
+    <<: *app
+    command: python -m scoring_writer.app
+    depends_on:
+      kafka-setup:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    healthcheck: *worker-health
+    restart: unless-stopped
+
+  artifact-browser:
+    profiles: [airflow]
+    <<: *app
+    command: python -m http.server 8081 --directory /opt/project/storage
+    volumes:
+      - storage:/opt/project/storage:ro
+    ports:
+      - '127.0.0.1:${REPORTS_PORT:-8086}:8081'
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8081', timeout=4)"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+
+  tests:
+    <<: *app
+    profiles: [test]
+    command: python -m pytest -q
+    volumes: []
+
+  tools:
+    <<: *app
+    profiles: [tools]
+    environment:
+      <<: *app-env
+      GRAFANA_URL: http://grafana:3000
+      PROMETHEUS_URL: http://prometheus:9090
+      GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      AIRFLOW_URL: http://airflow-webserver:8080
+      AIRFLOW_ADMIN_USER: ${AIRFLOW_ADMIN_USER:-admin}
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:-admin}
+    command: python scripts/verify_monitoring.py
+
+
+  simulator:
+    <<: *app
+    command: python scripts/simulate.py
+    environment:
+      <<: *app-env
+      SIMULATOR_RATE: ${SIMULATOR_RATE:-10}
+      SIMULATOR_MODE: ${SIMULATOR_MODE:-normal}
+    depends_on:
+      kafka-setup:
+        condition: service_completed_successfully
+      fraud_detector:
+        condition: service_healthy
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      - --storage.tsdb.retention.size=1GB
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - '127.0.0.1:${PROMETHEUS_PORT:-9090}:9090'
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://localhost:9090/-/ready]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.6.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_AUTH_ANONYMOUS_ENABLED: 'false'
+      GF_ANALYTICS_REPORTING_ENABLED: 'false'
+      GF_ANALYTICS_CHECK_FOR_UPDATES: 'false'
+      GF_PLUGINS_PREINSTALL_DISABLED: 'true'
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/scoring.json
+      GRAFANA_DB_PASSWORD: ${GRAFANA_DB_PASSWORD:-grafana_local}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - '127.0.0.1:${GRAFANA_PORT:-3000}:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://localhost:3000/api/health]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  node-exporter:
+    image: prom/node-exporter:v1.9.0
+    entrypoint: [/bin/sh, /etc/node-exporter/entrypoint.sh]
+    command:
+      - --path.procfs=/tmp/proc-view
+      - --path.sysfs=/host/sys
+      - --path.rootfs=/host/root
+      - --no-collector.netdev.netlink
+      - --no-collector.netclass.netlink
+      - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|run|var/lib/docker/.+)($$|/)
+    pid: host
+    volumes:
+      - ./node-exporter/entrypoint.sh:/etc/node-exporter/entrypoint.sh:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/root:ro
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  storage:
+  airflow_logs:
+  postgres_data:
+  kafka_data:
+  zookeeper_data:
+  zookeeper_log:

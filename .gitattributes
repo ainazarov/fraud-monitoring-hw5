@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.joblib binary
+*.png binary
+# Preserve raw command output receipts, including Docker's trailing spaces.
+reports/*.txt -whitespace

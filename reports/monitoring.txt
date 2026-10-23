@@ -1,0 +1,12 @@
+ Container fraud-monitoring-hw5-tools-run-980be4f2b145 Creating 
+ Container fraud-monitoring-hw5-tools-run-980be4f2b145 Created 
+
+Verified hw5-scoring: 14 panels
+Verified hw5-writer: 11 panels
+Verified hw5-system: 11 panels
+Verified hw5-business: 11 panels
+{
+  "status": "passed",
+  "evidence": "/opt/project/storage/evidence/monitoring.json",
+  "queries_checked": 56
+}

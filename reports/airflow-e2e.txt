@@ -1,0 +1,12 @@
+ Container fraud-monitoring-hw5-tools-run-1b15d5f53519 Creating 
+ Container fraud-monitoring-hw5-tools-run-1b15d5f53519 Created 
+
+advance_month: success (1 tasks)
+data_quality: success (2 tasks)
+retrain_model: success (4 tasks)
+{
+  "status": "passed",
+  "evidence": "/opt/project/storage/evidence/e2e-20261023T190320-db6e9186.json",
+  "model_before": "202407-6dcf4ea75f0e",
+  "model_after": "202408-04ff0cb5abd0"
+}

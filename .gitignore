@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+storage/
+data/*.csv
+!data/transactions.csv
+*.tar
+*.log
+runs/
+*.tar.gz
+Seminar_11._Domashnee_zadanie.docx

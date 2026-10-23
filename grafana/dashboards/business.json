@@ -1,0 +1,1124 @@
+{
+  "id": null,
+  "uid": "hw5-business",
+  "title": "HW5 / Fraud investigation",
+  "description": "State and merchant exploration with PostgreSQL filters. Standard panels follow processing time; the explicitly labelled category panels always use the global most recent 1,000 committed rows before filtering. No merchant, state or transaction identifiers are Prometheus labels.",
+  "tags": [
+    "hw5",
+    "fraud-monitoring",
+    "original"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 40,
+  "version": 1,
+  "editable": false,
+  "style": "dark",
+  "graphTooltip": 1,
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m"
+    ]
+  },
+  "links": [
+    {
+      "title": "Scoring",
+      "url": "/d/hw5-scoring",
+      "type": "link",
+      "includeVars": false,
+      "keepTime": true
+    },
+    {
+      "title": "Writer",
+      "url": "/d/hw5-writer",
+      "type": "link",
+      "includeVars": false,
+      "keepTime": true
+    },
+    {
+      "title": "System",
+      "url": "/d/hw5-system",
+      "type": "link",
+      "includeVars": false,
+      "keepTime": true
+    },
+    {
+      "title": "Business",
+      "url": "/d/hw5-business",
+      "type": "link",
+      "includeVars": false,
+      "keepTime": true
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "name": "Model activations",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "#B877D9",
+        "expr": "(fw_model_activated_timestamp_seconds > (time() - 30)) * 1000",
+        "step": "10s",
+        "useValueForTime": true,
+        "tagKeys": "version",
+        "titleFormat": "Model {{version}} activated",
+        "textFormat": "The scorer successfully loaded model {{version}}. The marker uses the actual activation timestamp."
+      }
+    ]
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "us_state",
+        "label": "State",
+        "type": "query",
+        "datasource": {
+          "type": "postgres",
+          "uid": "postgres"
+        },
+        "query": "SELECT label AS __text, value AS __value FROM (SELECT 'All' AS label, '__all' AS value UNION SELECT coalesce(nullif(us_state,''),'unknown'), coalesce(nullif(us_state,''),'unknown') FROM scores) options ORDER BY CASE WHEN value='__all' THEN 0 ELSE 1 END, label",
+        "definition": "SELECT label AS __text, value AS __value FROM (SELECT 'All' AS label, '__all' AS value UNION SELECT coalesce(nullif(us_state,''),'unknown'), coalesce(nullif(us_state,''),'unknown') FROM scores) options ORDER BY CASE WHEN value='__all' THEN 0 ELSE 1 END, label",
+        "refresh": 1,
+        "sort": 0,
+        "multi": true,
+        "includeAll": false,
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "__all"
+          ]
+        },
+        "options": []
+      },
+      {
+        "name": "merch",
+        "label": "Merchant",
+        "type": "query",
+        "datasource": {
+          "type": "postgres",
+          "uid": "postgres"
+        },
+        "query": "SELECT label AS __text, value AS __value FROM (SELECT 'All' AS label, '__all' AS value UNION SELECT coalesce(nullif(merch,''),'unknown'), coalesce(nullif(merch,''),'unknown') FROM scores) options ORDER BY CASE WHEN value='__all' THEN 0 ELSE 1 END, label",
+        "definition": "SELECT label AS __text, value AS __value FROM (SELECT 'All' AS label, '__all' AS value UNION SELECT coalesce(nullif(merch,''),'unknown'), coalesce(nullif(merch,''),'unknown') FROM scores) options ORDER BY CASE WHEN value='__all' THEN 0 ELSE 1 END, label",
+        "refresh": 1,
+        "sort": 0,
+        "multi": true,
+        "includeAll": false,
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "__all"
+          ]
+        },
+        "options": []
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Selected transactions",
+      "type": "stat",
+      "description": "Selected processing-time range, state and merchant filters.",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "rawSql": "SELECT count(*) AS value FROM scores WHERE $__timeFilter(processed_at) AND ('__all' IN (${us_state:sqlstring}) OR coalesce(nullif(us_state,''),'unknown') IN (${us_state:sqlstring}))\n  AND ('__all' IN (${merch:sqlstring}) OR coalesce(nullif(merch,''),'unknown') IN (${merch:sqlstring}))",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "No data",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 2,
+      "title": "Selected flagged fraction",
+      "type": "stat",
+      "description": "Selected processing-time range, state and merchant filters.",
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "rawSql": "SELECT avg(fraud_flag::double precision) AS value FROM scores WHERE $__timeFilter(processed_at) AND ('__all' IN (${us_state:sqlstring}) OR coalesce(nullif(us_state,''),'unknown') IN (${us_state:sqlstring}))\n  AND ('__all' IN (${merch:sqlstring}) OR coalesce(nullif(merch,''),'unknown') IN (${merch:sqlstring}))",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "No data",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 3,
+      "title": "Selected flagged amount",
+      "type": "stat",
+      "description": "Selected processing-time range, state and merchant filters.",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "rawSql": "SELECT coalesce(sum(amount) FILTER (WHERE fraud_flag=1),0) AS value FROM scores WHERE $__timeFilter(processed_at) AND ('__all' IN (${us_state:sqlstring}) OR coalesce(nullif(us_state,''),'unknown') IN (${us_state:sqlstring}))\n  AND ('__all' IN (${merch:sqlstring}) OR coalesce(nullif(merch,''),'unknown') IN (${merch:sqlstring}))",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "No data",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 4,
+      "title": "Selected mean score",
+      "type": "stat",
+      "description": "Selected processing-time range, state and merchant filters.",
+      "gridPos": {
+        "x": 18,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "rawSql": "SELECT avg(score) AS value FROM scores WHERE $__timeFilter(processed_at) AND ('__all' IN (${us_state:sqlstring}) OR coalesce(nullif(us_state,''),'unknown') IN (${us_state:sqlstring}))\n  AND ('__all' IN (${merch:sqlstring}) OR coalesce(nullif(merch,''),'unknown') IN (${merch:sqlstring}))",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "No data",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 5,
+      "title": "Filtered score probability density",
+      "type": "barchart",
+      "description": "20 equal bins of width 0.05. Density = bin count / (filtered sample size \u00d7 0.05), so area sums to one; density can exceed one. Score 1 belongs to the last bin. Empty selection has no defined density.",
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 12,
+        "h": 9
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "rawSql": "WITH filtered AS (\n  SELECT least(floor(score * 20)::integer, 19) AS bin FROM scores WHERE $__timeFilter(processed_at) AND ('__all' IN (${us_state:sqlstring}) OR coalesce(nullif(us_state,''),'unknown') IN (${us_state:sqlstring}))\n  AND ('__all' IN (${merch:sqlstring}) OR coalesce(nullif(merch,''),'unknown') IN (${merch:sqlstring}))\n), counts AS (SELECT bin, count(*) AS n FROM filtered GROUP BY bin),\ntotal AS (SELECT count(*)::double precision AS n FROM filtered)\nSELECT to_char(b.bin * 0.05, '0.00') || '-' || to_char((b.bin + 1) * 0.05, '0.00') AS score_bin,\n       coalesce(c.n,0) / nullif(t.n * 0.05,0) AS density\nFROM generate_series(0,19) b(bin) CROSS JOIN total t LEFT JOIN counts c USING (bin)\nORDER BY b.bin",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "No data",
+          "custom": {
+            "fillOpacity": 85,
+            "lineWidth": 0,
+            "axisPlacement": "auto"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "auto",
+        "barWidth": 0.8,
+        "groupWidth": 0.85,
+        "showValue": "never",
+        "stacking": "none",
+        "xTickLabelRotation": -45,
+        "legend": {
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Filtered processing TPS",
+      "type": "timeseries",
+      "description": "Counts durable transactions by processed_at, the scorer's actual wall-clock processing time, not historical transaction_time or database insertion time. Empty buckets are zero; partial boundary buckets use their actual duration.",
+      "gridPos": {
+        "x": 12,
+        "y": 4,
+        "w": 12,
+        "h": 9
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "rawSql": "WITH settings AS (\n  SELECT greatest($__interval_ms / 1000.0, 1) AS width,\n         extract(epoch FROM $__timeFrom()::timestamptz) AS start_s,\n         extract(epoch FROM $__timeTo()::timestamptz) AS end_s\n), buckets AS (\n  SELECT generate_series(floor(start_s/width)::bigint, ceil(end_s/width)::bigint-1) AS bucket,\n         width, start_s, end_s FROM settings\n), counts AS (\n  SELECT floor(extract(epoch FROM processed_at) / s.width)::bigint AS bucket, count(*) AS n\n  FROM scores CROSS JOIN settings s WHERE $__timeFilter(processed_at) AND ('__all' IN (${us_state:sqlstring}) OR coalesce(nullif(us_state,''),'unknown') IN (${us_state:sqlstring}))\n  AND ('__all' IN (${merch:sqlstring}) OR coalesce(nullif(merch,''),'unknown') IN (${merch:sqlstring})) GROUP BY 1\n)\nSELECT to_timestamp(greatest(b.bucket*b.width,b.start_s)) AS time,\n       coalesce(c.n,0)::double precision / nullif(least((b.bucket+1)*b.width,b.end_s)-greatest(b.bucket*b.width,b.start_s),0) AS tps\nFROM buckets b LEFT JOIN counts c USING (bucket) ORDER BY time",
+          "format": "time_series",
+          "editorMode": "code",
+          "rawQuery": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "No data",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "spanNulls": false,
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Fraud fraction by category \u00b7 latest 1,000 overall",
+      "type": "barchart",
+      "description": "First select the most recent 1,000 committed transactions globally using sequence DESC; then apply state/merchant filters; then compute flagged / category sample size. This rolling population intentionally ignores the dashboard time picker.",
+      "gridPos": {
+        "x": 0,
+        "y": 13,
+        "w": 12,
+        "h": 9
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "rawSql": "WITH latest AS (\n  SELECT cat_id, fraud_flag, us_state, merch FROM scores ORDER BY sequence DESC LIMIT 1000\n)\nSELECT coalesce(nullif(cat_id,''),'unknown') AS category,\n       avg(fraud_flag::double precision) AS fraud_fraction\nFROM latest WHERE ('__all' IN (${us_state:sqlstring}) OR coalesce(nullif(us_state,''),'unknown') IN (${us_state:sqlstring}))\n  AND ('__all' IN (${merch:sqlstring}) OR coalesce(nullif(merch,''),'unknown') IN (${merch:sqlstring}))\nGROUP BY 1 ORDER BY fraud_fraction DESC, category",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "No data",
+          "custom": {
+            "fillOpacity": 85,
+            "lineWidth": 0,
+            "axisPlacement": "auto"
+          },
+          "min": 0,
+          "max": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "auto",
+        "barWidth": 0.8,
+        "groupWidth": 0.85,
+        "showValue": "auto",
+        "stacking": "none",
+        "xTickLabelRotation": -25,
+        "legend": {
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "Flagged amount by state",
+      "type": "barchart",
+      "description": "Exposure indicator: sum of amounts for flagged transactions by state, in the selected processing-time range and current filters. These are model flags, not confirmed losses.",
+      "gridPos": {
+        "x": 12,
+        "y": 13,
+        "w": 12,
+        "h": 9
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "rawSql": "SELECT coalesce(nullif(us_state,''),'unknown') AS state, sum(amount) AS flagged_amount FROM scores WHERE $__timeFilter(processed_at) AND ('__all' IN (${us_state:sqlstring}) OR coalesce(nullif(us_state,''),'unknown') IN (${us_state:sqlstring}))\n  AND ('__all' IN (${merch:sqlstring}) OR coalesce(nullif(merch,''),'unknown') IN (${merch:sqlstring})) AND fraud_flag=1 GROUP BY 1 ORDER BY flagged_amount DESC LIMIT 15",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "No data",
+          "custom": {
+            "fillOpacity": 85,
+            "lineWidth": 0,
+            "axisPlacement": "auto"
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "auto",
+        "barWidth": 0.8,
+        "groupWidth": 0.85,
+        "showValue": "auto",
+        "stacking": "none",
+        "xTickLabelRotation": 0,
+        "legend": {
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "title": "Merchant exposure",
+      "type": "table",
+      "description": "Top 20 merchants by flagged amount. Small samples may produce unstable fraud fractions; inspect the transaction count.",
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "rawSql": "SELECT coalesce(nullif(merch,''),'unknown') AS merchant, count(*) AS transactions, sum(fraud_flag) AS flagged, avg(fraud_flag::double precision) AS fraud_fraction, coalesce(sum(amount) FILTER (WHERE fraud_flag=1),0) AS flagged_amount FROM scores WHERE $__timeFilter(processed_at) AND ('__all' IN (${us_state:sqlstring}) OR coalesce(nullif(us_state,''),'unknown') IN (${us_state:sqlstring}))\n  AND ('__all' IN (${merch:sqlstring}) OR coalesce(nullif(merch,''),'unknown') IN (${merch:sqlstring})) GROUP BY 1 ORDER BY flagged_amount DESC, transactions DESC LIMIT 20",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "No data"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "fraud_rate"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "fraud_fraction"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "amount"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "flagged_amount"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "score"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "mean_score"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "delivery_seconds"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": []
+      }
+    },
+    {
+      "id": 10,
+      "title": "Category sample sizes \u00b7 latest 1,000 overall",
+      "type": "table",
+      "description": "Denominators for the rolling category chart. Uses the same global 1,000-row window before merchant/state filtering and ignores the dashboard time picker.",
+      "gridPos": {
+        "x": 12,
+        "y": 22,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "rawSql": "WITH latest AS (SELECT cat_id, fraud_flag, us_state, merch FROM scores ORDER BY sequence DESC LIMIT 1000) SELECT coalesce(nullif(cat_id,''),'unknown') AS category, count(*) AS transactions, sum(fraud_flag) AS flagged FROM latest WHERE ('__all' IN (${us_state:sqlstring}) OR coalesce(nullif(us_state,''),'unknown') IN (${us_state:sqlstring}))\n  AND ('__all' IN (${merch:sqlstring}) OR coalesce(nullif(merch,''),'unknown') IN (${merch:sqlstring})) GROUP BY 1 ORDER BY transactions DESC",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "No data"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "fraud_rate"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "fraud_fraction"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "amount"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "flagged_amount"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "score"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "mean_score"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "delivery_seconds"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": []
+      }
+    },
+    {
+      "id": 11,
+      "title": "Explore recent selected transactions",
+      "type": "table",
+      "description": "Latest 100 matches. processed_at is operational time; transaction_time is the source event timestamp.",
+      "gridPos": {
+        "x": 0,
+        "y": 30,
+        "w": 24,
+        "h": 9
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "rawSql": "SELECT transaction_id, processed_at, transaction_time, model_version, score, fraud_flag, us_state, merch, cat_id, amount FROM scores WHERE $__timeFilter(processed_at) AND ('__all' IN (${us_state:sqlstring}) OR coalesce(nullif(us_state,''),'unknown') IN (${us_state:sqlstring}))\n  AND ('__all' IN (${merch:sqlstring}) OR coalesce(nullif(merch,''),'unknown') IN (${merch:sqlstring})) ORDER BY processed_at DESC, sequence DESC LIMIT 100",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "noValue": "No data"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "fraud_rate"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "fraud_fraction"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "amount"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "flagged_amount"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "score"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "mean_score"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "delivery_seconds"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": []
+      }
+    }
+  ]
+}

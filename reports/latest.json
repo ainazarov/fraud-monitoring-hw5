@@ -1,0 +1,278 @@
+{
+  "after": {
+    "artifact": "model-202408-04ff0cb5abd0.joblib",
+    "metrics": {
+      "pr_auc": 1.0,
+      "roc_auc": 1.0
+    },
+    "published_at": "2026-10-23T19:03:37.590047+00:00",
+    "run_id": "e2e-20261023T190320-db6e9186-train",
+    "schema_version": 1,
+    "sha256": "629394f116d54f306c37d52dec1ae37a1a7ebaa2b78042f6676cb376b8c19801",
+    "validation_month": "2024-08",
+    "version": "202408-04ff0cb5abd0",
+    "window_end": "2024-08",
+    "window_start": "2024-06"
+  },
+  "before": {
+    "artifact": "model-202407-6dcf4ea75f0e.joblib",
+    "metrics": {
+      "pr_auc": 0.9999999999999999,
+      "roc_auc": 1.0
+    },
+    "published_at": "2026-10-23T19:02:47.306304+00:00",
+    "run_id": "scheduled__2026-10-23T18:55:00+00:00",
+    "schema_version": 1,
+    "sha256": "ff8e732ebd4c022c4bf7a2d31a5f4e1cbb90eaf5b42a613a63897e5efbf12bc1",
+    "validation_month": "2024-07",
+    "version": "202407-6dcf4ea75f0e",
+    "window_end": "2024-07",
+    "window_start": "2024-05"
+  },
+  "dags": [
+    {
+      "dag_id": "advance_month",
+      "run_id": "e2e-20261023T190320-db6e9186-advance",
+      "state": "success",
+      "tasks": [
+        {
+          "state": "success",
+          "task_id": "advance_calendar_month",
+          "try_number": 1
+        }
+      ]
+    },
+    {
+      "dag_id": "data_quality",
+      "run_id": "e2e-20261023T190320-db6e9186-dq",
+      "state": "success",
+      "tasks": [
+        {
+          "state": "success",
+          "task_id": "check_dataset",
+          "try_number": 1
+        },
+        {
+          "state": "success",
+          "task_id": "enforce_quality",
+          "try_number": 1
+        }
+      ]
+    },
+    {
+      "dag_id": "retrain_model",
+      "run_id": "e2e-20261023T190320-db6e9186-train",
+      "state": "success",
+      "tasks": [
+        {
+          "state": "success",
+          "task_id": "train_candidate",
+          "try_number": 1
+        },
+        {
+          "state": "success",
+          "task_id": "prepare_window",
+          "try_number": 1
+        },
+        {
+          "state": "success",
+          "task_id": "evaluate_candidate",
+          "try_number": 1
+        },
+        {
+          "state": "success",
+          "task_id": "publish_candidate",
+          "try_number": 1
+        }
+      ]
+    }
+  ],
+  "dq": {
+    "checked_at": "2026-10-23T19:03:28.301334+00:00",
+    "end_month": "2024-08",
+    "html_path": "/opt/project/storage/dq_reports/e2e-20261023T190320-db6e9186-dq.html",
+    "json_path": "/opt/project/storage/dq_reports/e2e-20261023T190320-db6e9186-dq.json",
+    "monthly_counts": {
+      "2024-06": 3000,
+      "2024-07": 3000,
+      "2024-08": 3000
+    },
+    "passed": true,
+    "rows": 9000,
+    "rules": [
+      {
+        "details": "Missing columns: []",
+        "name": "required_schema",
+        "passed": true
+      },
+      {
+        "details": "Rows=9000; null cells=0",
+        "name": "required_values_present",
+        "passed": true
+      },
+      {
+        "details": "Duplicate IDs=0",
+        "name": "unique_transaction_ids",
+        "passed": true
+      },
+      {
+        "details": "Unparseable timestamps=0",
+        "name": "valid_transaction_time",
+        "passed": true
+      },
+      {
+        "details": "Every amount must be finite and between 0 and 10,000,000 inclusive",
+        "name": "amount_finite_and_in_range",
+        "passed": true
+      },
+      {
+        "details": "Finite latitude in [-90,90] and longitude in [-180,180], for customer and merchant",
+        "name": "valid_geographic_coordinates",
+        "passed": true
+      },
+      {
+        "details": "Every labeled target is exactly 0 or 1",
+        "name": "binary_target",
+        "passed": true
+      },
+      {
+        "details": "Expected=['2024-06', '2024-07', '2024-08']; observed=['2024-06', '2024-07', '2024-08']",
+        "name": "consecutive_calendar_window",
+        "passed": true
+      },
+      {
+        "details": "Minimum 50 rows/month; counts={'2024-06': 3000, '2024-07': 3000, '2024-08': 3000}",
+        "name": "usable_monthly_counts",
+        "passed": true
+      },
+      {
+        "details": "Observed labels per month={'2024-06': [0, 1], '2024-07': [0, 1], '2024-08': [0, 1]}",
+        "name": "both_classes_each_month",
+        "passed": true
+      },
+      {
+        "details": "All training timestamps must precede the latest-month holdout; no split overlap",
+        "name": "strict_temporal_holdout",
+        "passed": true
+      },
+      {
+        "details": "Nonempty categorical values in ['merch', 'cat_id', 'gender', 'one_city', 'us_state', 'post_code', 'jobs']",
+        "name": "nonempty_categorical_features",
+        "passed": true
+      },
+      {
+        "details": "Finite integer population in [0,100,000,000]",
+        "name": "valid_city_population",
+        "passed": true
+      }
+    ],
+    "run_id": "e2e-20261023T190320-db6e9186-dq",
+    "window_months": 3
+  },
+  "finished_at": "2026-10-23T19:03:40.605807+00:00",
+  "monthly_replay": {
+    "month": "2024-08",
+    "rows_added": 3000,
+    "rows_pruned": 0,
+    "run_id": "e2e-20261023T190320-db6e9186-advance",
+    "status": "already_committed"
+  },
+  "months_after": [
+    "2024-01",
+    "2024-02",
+    "2024-03",
+    "2024-04",
+    "2024-05",
+    "2024-06",
+    "2024-07",
+    "2024-08"
+  ],
+  "months_before": [
+    "2024-01",
+    "2024-02",
+    "2024-03",
+    "2024-04",
+    "2024-05",
+    "2024-06",
+    "2024-07"
+  ],
+  "run_id": "e2e-20261023T190320-db6e9186",
+  "scores_after": [
+    {
+      "fraud_flag": 0,
+      "model_version": "202408-04ff0cb5abd0",
+      "score": 0.05681101430948401,
+      "transaction_id": "e2e-20261023T190320-db6e9186-after-0"
+    },
+    {
+      "fraud_flag": 0,
+      "model_version": "202408-04ff0cb5abd0",
+      "score": 0.06331738142731154,
+      "transaction_id": "e2e-20261023T190320-db6e9186-after-1"
+    },
+    {
+      "fraud_flag": 0,
+      "model_version": "202408-04ff0cb5abd0",
+      "score": 0.03443132720965632,
+      "transaction_id": "e2e-20261023T190320-db6e9186-after-2"
+    },
+    {
+      "fraud_flag": 0,
+      "model_version": "202408-04ff0cb5abd0",
+      "score": 0.038737380760352644,
+      "transaction_id": "e2e-20261023T190320-db6e9186-after-3"
+    },
+    {
+      "fraud_flag": 0,
+      "model_version": "202408-04ff0cb5abd0",
+      "score": 0.0814485755549932,
+      "transaction_id": "e2e-20261023T190320-db6e9186-after-4"
+    },
+    {
+      "fraud_flag": 0,
+      "model_version": "202408-04ff0cb5abd0",
+      "score": 0.049529975017331,
+      "transaction_id": "e2e-20261023T190320-db6e9186-after-5"
+    }
+  ],
+  "scores_before": [
+    {
+      "fraud_flag": 0,
+      "model_version": "202407-6dcf4ea75f0e",
+      "score": 0.019240380599794576,
+      "transaction_id": "e2e-20261023T190320-db6e9186-before-0"
+    },
+    {
+      "fraud_flag": 0,
+      "model_version": "202407-6dcf4ea75f0e",
+      "score": 0.00804526074122663,
+      "transaction_id": "e2e-20261023T190320-db6e9186-before-1"
+    },
+    {
+      "fraud_flag": 0,
+      "model_version": "202407-6dcf4ea75f0e",
+      "score": 0.02,
+      "transaction_id": "e2e-20261023T190320-db6e9186-before-2"
+    },
+    {
+      "fraud_flag": 0,
+      "model_version": "202407-6dcf4ea75f0e",
+      "score": 0.04478291673129638,
+      "transaction_id": "e2e-20261023T190320-db6e9186-before-3"
+    },
+    {
+      "fraud_flag": 0,
+      "model_version": "202407-6dcf4ea75f0e",
+      "score": 0.07021637849905278,
+      "transaction_id": "e2e-20261023T190320-db6e9186-before-4"
+    },
+    {
+      "fraud_flag": 0,
+      "model_version": "202407-6dcf4ea75f0e",
+      "score": 0.02,
+      "transaction_id": "e2e-20261023T190320-db6e9186-before-5"
+    }
+  ],
+  "started_at": "2026-10-23T19:03:20.109948+00:00",
+  "status": "passed"
+}

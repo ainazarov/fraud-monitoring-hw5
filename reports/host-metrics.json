@@ -1,0 +1,52 @@
+{
+  "checked_at": "2026-10-23T18:58:23.676602+00:00",
+  "container": "fraud-monitoring-hw5-node-exporter-1",
+  "exporter_image": "prom/node-exporter:v1.9.0",
+  "host_scope": "Linux WSL host, not Windows host or exporter container",
+  "network_mode": "fraud-monitoring-hw5_default",
+  "pid_mode": "host",
+  "host_before": {
+    "eth0": {
+      "receive_bytes": 2964498573,
+      "transmit_bytes": 62727479
+    },
+    "cpu0_idle_seconds": 2373239.41
+  },
+  "exported": {
+    "eth0": {
+      "receive_bytes": 2964498573.0,
+      "transmit_bytes": 62727479.0
+    },
+    "cpu0_idle_seconds": 2373239.44,
+    "memory_total_bytes": 16322211840.0,
+    "root_filesystem_size_bytes": 1081101176832.0
+  },
+  "host_after": {
+    "eth0": {
+      "receive_bytes": 2964498573,
+      "transmit_bytes": 62727479
+    },
+    "cpu0_idle_seconds": 2373239.44
+  },
+  "host_memory_total_bytes": 16322211840,
+  "host_root_filesystem_size_bytes": 1081101176832,
+  "collector_success": {
+    "cpu": 1.0,
+    "meminfo": 1.0,
+    "filesystem": 1.0,
+    "diskstats": 1.0,
+    "netdev": 1.0,
+    "netclass": 1.0,
+    "netstat": 1.0
+  },
+  "checks": {
+    "http_200": true,
+    "network_rx_within_host_bounds": true,
+    "network_tx_within_host_bounds": true,
+    "cpu_idle_within_host_bounds": true,
+    "memory_total_matches_host": true,
+    "root_filesystem_matches_host": true,
+    "required_collectors_successful": true
+  },
+  "passed": true
+}

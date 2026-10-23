@@ -1,0 +1,103 @@
+ Container fraud-monitoring-hw5-simulator-1 Stopping 
+ Container fraud-monitoring-hw5-simulator-1 Stopped 
+ Container hw5-alert-probe-1792781492-1014672 Creating 
+ Container hw5-alert-probe-1792781492-1014672 Created 
+94cd1b89a8455b2e74695cb1cc5e32a500005966705bac4c889222f45157aa08
+ Container fraud-monitoring-hw5-tools-run-e61c35f29024 Creating 
+ Container fraud-monitoring-hw5-tools-run-e61c35f29024 Created 
+
+{
+  "checked_at": "2026-10-23T18:52:20.529917+00:00",
+  "states": {
+    "HW5 - High fraud ratio": "firing",
+    "HW5 - Scoring stream stalled": "inactive"
+  }
+}
+ Container fraud-monitoring-hw5-zookeeper-1 Waiting 
+ Container fraud-monitoring-hw5-seed-1 Starting 
+ Container fraud-monitoring-hw5-seed-1 Started 
+ Container fraud-monitoring-hw5-zookeeper-1 Healthy 
+ Container fraud-monitoring-hw5-kafka-1 Waiting 
+ Container fraud-monitoring-hw5-kafka-1 Healthy 
+ Container fraud-monitoring-hw5-kafka-setup-1 Starting 
+ Container fraud-monitoring-hw5-kafka-setup-1 Started 
+ Container fraud-monitoring-hw5-kafka-setup-1 Waiting 
+ Container fraud-monitoring-hw5-seed-1 Waiting 
+ Container fraud-monitoring-hw5-seed-1 Exited 
+ Container fraud-monitoring-hw5-kafka-setup-1 Exited 
+ Container fraud-monitoring-hw5-kafka-setup-1 Waiting 
+ Container fraud-monitoring-hw5-fraud_detector-1 Waiting 
+ Container fraud-monitoring-hw5-kafka-setup-1 Exited 
+ Container fraud-monitoring-hw5-fraud_detector-1 Healthy 
+ Container fraud-monitoring-hw5-simulator-1 Starting 
+ Container fraud-monitoring-hw5-simulator-1 Started 
+time="2026-10-23T21:52:26+03:00" level=warning msg="Found orphan containers (hw5-alert-probe-1792781492-1014672) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container fraud-monitoring-hw5-tools-run-54fa4b528e39 Creating 
+ Container fraud-monitoring-hw5-tools-run-54fa4b528e39 Created 
+
+{
+  "checked_at": "2026-10-23T18:52:51.409995+00:00",
+  "states": {
+    "HW5 - High fraud ratio": "inactive",
+    "HW5 - Scoring stream stalled": "inactive"
+  }
+}
+ Container fraud-monitoring-hw5-simulator-1 Stopping 
+ Container fraud-monitoring-hw5-simulator-1 Stopped 
+time="2026-10-23T21:52:52+03:00" level=warning msg="Found orphan containers (hw5-alert-probe-1792781492-1014672) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container fraud-monitoring-hw5-tools-run-477d78aecbd3 Creating 
+ Container fraud-monitoring-hw5-tools-run-477d78aecbd3 Created 
+
+{
+  "checked_at": "2026-10-23T18:54:35.205899+00:00",
+  "states": {
+    "HW5 - High fraud ratio": "inactive",
+    "HW5 - Scoring stream stalled": "firing"
+  }
+}
+ Container fraud-monitoring-hw5-zookeeper-1 Waiting 
+ Container fraud-monitoring-hw5-seed-1 Starting 
+ Container fraud-monitoring-hw5-seed-1 Started 
+ Container fraud-monitoring-hw5-zookeeper-1 Healthy 
+ Container fraud-monitoring-hw5-kafka-1 Waiting 
+ Container fraud-monitoring-hw5-kafka-1 Healthy 
+ Container fraud-monitoring-hw5-kafka-setup-1 Starting 
+ Container fraud-monitoring-hw5-kafka-setup-1 Started 
+ Container fraud-monitoring-hw5-kafka-setup-1 Waiting 
+ Container fraud-monitoring-hw5-seed-1 Waiting 
+ Container fraud-monitoring-hw5-seed-1 Exited 
+ Container fraud-monitoring-hw5-kafka-setup-1 Exited 
+ Container fraud-monitoring-hw5-fraud_detector-1 Waiting 
+ Container fraud-monitoring-hw5-kafka-setup-1 Waiting 
+ Container fraud-monitoring-hw5-fraud_detector-1 Healthy 
+ Container fraud-monitoring-hw5-kafka-setup-1 Exited 
+ Container fraud-monitoring-hw5-simulator-1 Starting 
+ Container fraud-monitoring-hw5-simulator-1 Started 
+time="2026-10-23T21:54:39+03:00" level=warning msg="Found orphan containers (hw5-alert-probe-1792781492-1014672) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container fraud-monitoring-hw5-tools-run-6148100bb9fe Creating 
+ Container fraud-monitoring-hw5-tools-run-6148100bb9fe Created 
+
+{
+  "checked_at": "2026-10-23T18:54:55.450424+00:00",
+  "states": {
+    "HW5 - High fraud ratio": "inactive",
+    "HW5 - Scoring stream stalled": "inactive"
+  }
+}
+Both Grafana alerts fired and recovered with real stream changes.
+ Container fraud-monitoring-hw5-seed-1 Starting 
+ Container fraud-monitoring-hw5-zookeeper-1 Waiting 
+ Container fraud-monitoring-hw5-seed-1 Started 
+ Container fraud-monitoring-hw5-zookeeper-1 Healthy 
+ Container fraud-monitoring-hw5-kafka-1 Waiting 
+ Container fraud-monitoring-hw5-kafka-1 Healthy 
+ Container fraud-monitoring-hw5-kafka-setup-1 Starting 
+ Container fraud-monitoring-hw5-kafka-setup-1 Started 
+ Container fraud-monitoring-hw5-seed-1 Waiting 
+ Container fraud-monitoring-hw5-kafka-setup-1 Waiting 
+ Container fraud-monitoring-hw5-seed-1 Exited 
+ Container fraud-monitoring-hw5-kafka-setup-1 Exited 
+ Container fraud-monitoring-hw5-kafka-setup-1 Waiting 
+ Container fraud-monitoring-hw5-fraud_detector-1 Waiting 
+ Container fraud-monitoring-hw5-kafka-setup-1 Exited 
+ Container fraud-monitoring-hw5-fraud_detector-1 Healthy 

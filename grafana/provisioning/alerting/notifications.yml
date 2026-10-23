@@ -1,0 +1,26 @@
+# This homework observes alert states in Grafana without sending notifications.
+# Grafana 11.6 requires a receiver on the root route; use its built-in receiver
+# but match every alert in a muted child route. Root routes cannot be muted.
+# Muting only suppresses delivery: rule evaluation and UI state remain active.
+# Schema: https://github.com/grafana/grafana/blob/v11.6.0/docs/sources/alerting/set-up/provision-alerting-resources/file-provisioning/index.md
+apiVersion: 1
+muteTimes:
+  - orgId: 1
+    name: hw5-ui-only
+    time_intervals:
+      - times:
+          - start_time: '00:00'
+            end_time: '24:00'
+        location: UTC
+policies:
+  - orgId: 1
+    receiver: grafana-default-email
+    group_by: ['grafana_folder', 'alertname']
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 4h
+    routes:
+      - receiver: grafana-default-email
+        # No matchers: all alerts in this standalone demo follow this route.
+        mute_time_intervals: ['hw5-ui-only']
+        continue: false
